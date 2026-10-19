@@ -3355,6 +3355,17 @@ usage = "Vietnamese UI strings, compiled in by crates/ui-egui/src/i18n/mod.rs"
 sha256 = "95b5fc6d10f7bc8371688772741870448de716fa2dd9af62fdfe4e009d269b45"
 
 [[asset]]
+path = "crates/ui-egui/src/i18n/ko.tsv"
+title = "Korean interface translation catalog"
+author = "PdfCraft contributors"
+source = "Contributor-original: clean-room translations of PdfCraft's English UI labels and user-facing messages, written from the meaning of the English text; other PdfCraft catalogs used only to disambiguate the English; AI-assisted (2026-10-19) and not yet reviewed by a native Korean-speaking contributor"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Korean UI strings, compiled in by crates/ui-egui/src/i18n/mod.rs"
+sha256 = "2fb5e4c681f78ce59943a03ac37165e8b57f18a15e315ff013f801360de737d6"
+
+[[asset]]
 path = "crates/ui-egui/src/i18n/sl.tsv"
 title = "Slovene interface translation catalog"
 author = "PdfCraft contributors"

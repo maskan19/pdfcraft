@@ -219,6 +219,39 @@ fn system_fallback_covers_sinhala_and_tamil() {
     }
 }
 
+/// On a machine with an installed Korean font, the installed definitions include it once per
+/// family and every Hangul letter of the Korean catalog has a glyph, so the Korean interface and
+/// Korean file names are not boxes. macOS always ships Apple SD Gothic Neo, so there the test
+/// never skips.
+#[test]
+fn system_fallback_covers_the_korean_catalog() {
+    let name = theme::SYSTEM_HANGUL_FALLBACK;
+    assert!(!theme::font_definitions().font_data.contains_key(name));
+    let defs = theme::installed_font_definitions(theme::CjkPreference::Default);
+    let off = std::env::var_os("PDFCRAFT_SYSTEM_FONTS").is_some_and(|v| v == "0");
+    if !defs.font_data.contains_key(name) && (off || !cfg!(target_os = "macos")) {
+        eprintln!("skipping system_fallback_covers_the_korean_catalog: no installed Hangul fallback font (or PDFCRAFT_SYSTEM_FONTS=0)");
+        assert!(defs.families.values().all(|stack| !stack.iter().any(|n| n == name)));
+        return;
+    }
+    for (family, stack) in &defs.families {
+        assert_eq!(stack.iter().filter(|n| *n == name).count(), 1, "{family:?}: {stack:?}");
+    }
+    let mut text: String = include_str!("../src/i18n/ko.tsv")
+        .lines()
+        .filter(|l| !l.starts_with('#'))
+        .filter_map(|l| l.split('\t').nth(2))
+        .flat_map(str::chars)
+        .filter(|c| matches!(*c, '\u{3131}'..='\u{318e}' | '\u{ac00}'..='\u{d7a3}'))
+        .collect();
+    text.push_str("한국어");
+    let mut fonts = Fonts::new(TextOptions::default(), defs);
+    for id in families() {
+        assert!(fonts.has_glyphs(&id, &text), "{id:?} lacks a Hangul glyph of the Korean catalog");
+    }
+    assert!(layout_widths(&mut fonts, "한국어 파일.pdf").iter().all(|w| w.is_finite() && *w > 0.0));
+}
+
 /// The Han characters of a catalog's translations.
 fn catalog_han(catalog: &str) -> String {
     let mut han: Vec<char> = catalog

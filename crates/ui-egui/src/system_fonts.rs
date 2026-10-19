@@ -4,7 +4,8 @@
 //! only draws characters none of them has, such as an Arabic file name in a build without
 //! craft-fonts, or the Simplified Chinese interface in a build without a `Hans` face (#826). A
 //! few more installed faces, [`devanagari_fallback`], [`telugu_fallback`], [`sinhala_fallback`]
-//! and [`tamil_fallback`], draw Hindi, Telugu, Sinhala and Tamil when one is installed. It is
+//! and [`tamil_fallback`], draw Hindi, Telugu, Sinhala and Tamil when one is installed, and
+//! [`hangul_fallback`] draws Korean (the interface catalog and file names). It is
 //! read at runtime and never embedded or shipped (AGENTS.md §1.4), and `PDFCRAFT_SYSTEM_FONTS=0`
 //! turns it off (published screenshots do).
 
@@ -32,6 +33,8 @@ const TELUGU_PROBE: char = '\u{0C15}';
 const SINHALA_PROBE: char = '\u{0D9A}';
 /// Tamil letter ka (க): the face must have it to cover Tamil.
 const TAMIL_PROBE: char = '\u{0B95}';
+/// 가 (U+AC00), the first Hangul syllable: the face must have it to cover Korean.
+const HANGUL_PROBE: char = '\u{AC00}';
 /// 欢 (U+6B22): Simplified only, absent from the Japanese craft-fonts faces.
 const HANS_PROBE: char = '\u{6B22}';
 /// 說 (U+8AAA): Traditional only, absent from the Japanese craft-fonts faces.
@@ -103,11 +106,55 @@ pub fn tamil_fallback() -> Option<Arc<FontData>> {
     CACHE.get_or_init(|| script_fallback(&tamil_candidates(), TAMIL_PROBE)).clone()
 }
 
+/// The installed fallback face for Hangul (Korean), read once. `None` when it is turned off or no
+/// candidate is installed; Korean text then shows the replacement glyph. Korean faces carry
+/// thousands of syllables, so they get the Chinese faces' size cap.
+pub fn hangul_fallback() -> Option<Arc<FontData>> {
+    static CACHE: OnceLock<Option<Arc<FontData>>> = OnceLock::new();
+    CACHE.get_or_init(|| script_fallback_capped(&hangul_candidates(), HANGUL_PROBE, MAX_HAN_BYTES)).clone()
+}
+
 fn script_fallback(candidates: &[PathBuf], probe: char) -> Option<Arc<FontData>> {
+    script_fallback_capped(candidates, probe, MAX_BYTES)
+}
+
+fn script_fallback_capped(candidates: &[PathBuf], probe: char, max: u64) -> Option<Arc<FontData>> {
     if std::env::var_os("PDFCRAFT_SYSTEM_FONTS").is_some_and(|v| v == "0") {
         return None;
     }
-    candidates.iter().find_map(|path| read(path, probe, MAX_BYTES))
+    candidates.iter().find_map(|path| read(path, probe, max))
+}
+
+/// Well-known locations of Korean sans faces the operating system or a distribution ships, best
+/// first: Malgun Gothic (Windows), Apple SD Gothic Neo (macOS), then Nanum Gothic, Un Dotum and
+/// Baekmuk Dotum. Noto Sans CJK / Source Han are left out on purpose (AGENTS.md §1.1).
+fn hangul_candidates() -> Vec<PathBuf> {
+    if cfg!(windows) {
+        ["malgun.ttf", "gulim.ttc", "batang.ttc"].iter().map(|f| windows_fonts().join(f)).collect()
+    } else if cfg!(target_os = "macos") {
+        [
+            "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+            "/System/Library/Fonts/Supplemental/AppleGothic.ttf",
+            "/Library/Fonts/NanumGothic.ttf",
+            "/Library/Fonts/Arial Unicode.ttf",
+        ]
+        .iter()
+        .map(PathBuf::from)
+        .collect()
+    } else {
+        unix_fonts(&[
+            "truetype/nanum/NanumGothic.ttf",
+            "nanum/NanumGothic.ttf",
+            "naver-nanum/NanumGothic.ttf",
+            "nanum-gothic-fonts/NanumGothic.ttf",
+            "TTF/NanumGothic.ttf",
+            "truetype/unfonts-core/UnDotum.ttf",
+            "un-core/UnDotum.ttf",
+            "TTF/UnDotum.ttf",
+            "truetype/baekmuk/dotum.ttf",
+            "baekmuk-ttf-dotum-fonts/dotum.ttf",
+        ])
+    }
 }
 
 /// Well-known locations of Devanagari (Hindi) faces, best first.
@@ -407,11 +454,13 @@ mod tests {
         assert!(script_fallback(&candidates, DEVANAGARI_PROBE).is_none());
         assert!(script_fallback(&candidates, SINHALA_PROBE).is_none());
         assert!(script_fallback(&candidates, TAMIL_PROBE).is_none());
+        assert!(script_fallback_capped(&candidates, HANGUL_PROBE, MAX_HAN_BYTES).is_none());
+        assert!(script_fallback_capped(&candidates, 'A', 1024).is_none(), "the cap applies");
     }
 
     #[test]
     fn script_candidates_are_absolute_font_files() {
-        for list in [devanagari_candidates(), telugu_candidates(), sinhala_candidates(), tamil_candidates()] {
+        for list in [devanagari_candidates(), telugu_candidates(), sinhala_candidates(), tamil_candidates(), hangul_candidates()] {
             assert!(!list.is_empty());
             assert!(list.iter().all(|p| p.is_absolute() || cfg!(windows)), "{list:?}");
             assert!(list.iter().all(|p| p.extension().is_some_and(|e| e == "ttf" || e == "ttc")), "{list:?}");
@@ -421,7 +470,7 @@ mod tests {
     #[test]
     fn han_candidates_skip_adobe_designs() {
         for need in [Need::Hans, Need::Hant] {
-            for path in candidates(need) {
+            for path in candidates(need).into_iter().chain(hangul_candidates()) {
                 let name = path.to_string_lossy().to_lowercase();
                 assert!(!["notosanscjk", "notoserifcjk", "sourcehan", "source-han"].iter().any(|b| name.contains(b)), "{name}");
             }

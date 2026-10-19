@@ -1,7 +1,7 @@
 # Localization parity
 
 > **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** minor (Vietnamese 100% of current key union; native-speaker community review; twelve-language mean ≈68%) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-14 · **Change:** minor (Italian count after completing its catalog) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-19 · **Change:** minor (Korean catalog: 100% of current key union, Hangul from an installed face; twelve-language mean ≈73%) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 
 Per-language status of PdfCraft's interface against Acrobat Pro's. How translations work and how to
 add a language: [localization.md](localization.md). Summary in [ROADMAP.md](../ROADMAP.md).
@@ -39,12 +39,13 @@ add a language: [localization.md](localization.md). Summary in [ROADMAP.md](../R
 | Indonesian | `id` | 0 | none | Latin | no | none | no | 3–5 |
 | Japanese | `ja` | 2,123 (99.1%) | dialogs and tooltips; no help | BIZ UDPGothic from craft-fonts; IME patched on macOS, Windows, X11, Wayland; vertical text renders but can't be edited | no | partial | yes | 4–8 |
 | German | `de` | 2,128 (99.3%) | dialogs and tooltips; no help | Latin | community, in progress (#828: terminology, clipping) | partial | yes | 2–4 |
-| Korean | `ko` | 0 | none | Hangul IME patched (Microsoft and Apple Korean, `vendor/README.md` winit 3, 6, 9, 10); no Hangul UI face in craft-fonts | no | none | yes | 6–10 |
+| Korean | `ko` | 2,674 (100% of current union) | dialogs and tooltips; no help | Hangul IME patched (Microsoft and Apple Korean, `vendor/README.md` winit 3, 6, 9, 10); **no Hangul face in craft-fonts**: the interface draws Hangul with an installed face (Malgun Gothic, Apple SD Gothic Neo, Nanum Gothic …), so the web build and a Linux system without one show boxes | no (AI-assisted, awaiting native review) | partial | yes | 4–8 |
 | Vietnamese | `vi` | 2,591 (100% of current union + theme Appearance) | dialogs and tooltips; no help | Latin with stacked diacritics; bundled Inter covers them (fonts test) | community | partial | no | 2–4 |
 
-**Localization dimension ≈ 68%**: the mean over the twelve, counting a catalog's percentage but only
-60% for Chinese and Arabic until their script problems are fixed, and 0 for Hindi, Indonesian and
-Korean (still missing). Vietnamese moved from 0% to 100% in that mean (59% → 68%). **≈ 55–110 h**
+**Localization dimension ≈ 73%**: the mean over the twelve, counting a catalog's percentage but only
+60% for Chinese, Arabic and Korean until their script problems are fixed (Korean: no embedded
+Hangul face), and 0 for Hindi and Indonesian (still missing). Vietnamese moved from 0% to 100% in
+that mean (59% → 68%), Korean from 0% to 60% (68% → 73%). **≈ 55–110 h**
 to bring all twelve to `full`, of which ≈ 35–60 h is engineering (Hans face, RTL layout, bidi text)
 and the rest catalogs and fixes; native-speaker review needs humans.
 

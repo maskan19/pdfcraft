@@ -131,8 +131,8 @@ What's strong and missing in each: [target-app-parity.md](docs/target-app-parity
 
 ## Languages
 
-Twelve key languages (historical % snapshot vs 2,143 keys, except Vietnamese vs the current
-union). Detail and script notes: [localization-parity.md](docs/localization-parity.md).
+Twelve key languages (historical % snapshot vs 2,143 keys, except Vietnamese and Korean vs the
+current union). Detail and script notes: [localization-parity.md](docs/localization-parity.md).
 
 | Language | Code | Strings | Status |
 |---|---|---|---|
@@ -146,7 +146,7 @@ union). Detail and script notes: [localization-parity.md](docs/localization-pari
 | Indonesian | `id` | 0% | none |
 | Japanese | `ja` | 99.1% | partial |
 | German | `de` | 99.3% | partial |
-| Korean | `ko` | 0% | none |
+| Korean | `ko` | 100% of current union | partial (Hangul from an installed face; none on the web) |
 | Vietnamese | `vi` | 100% of current union | partial (dialogs / tooltips; no help) |
 
 Also shipped: Traditional Chinese, Russian, Bulgarian, Telugu, Hungarian, Ukrainian, Italian,
@@ -208,6 +208,7 @@ Ranked; detail and the full milestone table in [docs/roadmap.md](docs/roadmap.md
 - **2026-10-12 (gap 6, #1319, #1305, #1324):** Editing an XFA form keeps a radio item's stored text when it contains a space, so a later layout still selects it. Replace Pages on a split selection replaces those pages and leaves the gap; editing the dialog range still replaces the span. Marking a figure decorative rewrites only that figure's content stream, so a header, added text and unknown stream entries stay. Estimates unchanged.
 - **2026-10-15 (M14, gap 24):** `misc.localization` and `misc.installers` move from planned to partial. Localization: 22 catalogs ship, but Chinese shows tofu in releases, Telugu has no release font and Arabic is not mirrored. Installers: macOS and Windows releases are signed, Linux packages are not. The Acrobat menu diff itself remains open. Estimates unchanged.
 - **2026-10-13 (G14, Vietnamese localization):** Added Vietnamese (`vi`, Tiếng Việt) as an interface and date language with a 2,591-entry catalog (`plural_none`) covering 100% of the current localizable key union (plus `theme`/`Appearance`). Locale tags `vi` / `vi-VN` / `vi_VN.UTF-8` resolve; calendar months use numeric `Tháng 1`…`12` / `tháng 1`…`12`. Native-speaker community review recorded. The twelve-language localization mean moves from ≈59% to ≈68%; weighted readiness ≈49% → ≈50%. Status stays `partial`: engine/OS details, document contents, filenames, CLI/MCP and external help stay outside the catalog by design.
+- **2026-10-19 (G14, Korean localization):** Added Korean (`ko`, 한국어) as an interface and date language with a 2,674-entry catalog (`plural_none`) covering every key of the other bundled catalogs. Locale tags `ko` / `ko-KR` / `ko_KR.UTF-8` resolve; dates read `2026년 3월 7일`. craft-fonts has no Hangul face, so the interface draws Hangul with an installed one (Malgun Gothic, Apple SD Gothic Neo, Nanum Gothic, Un Dotum, Baekmuk; never Noto CJK), added like the Devanagari, Telugu, Sinhala and Tamil fallbacks; the web build shows boxes. AI-assisted translation, not yet native-reviewed. Twelve-language localization mean ≈68% → ≈73% (Korean counted at 60% until a Hangul face ships). Status stays `partial`.
 
 - **2026-10-13 (M3, typed zoom):** The right rail's zoom percentage is an editable field: type 150, 150% or 62.5 % and press Enter, Escape discards, and nonsense keeps the current zoom. The control channel's zoom option shares its parser, which now refuses zero, negative and non-finite values.
 - **2026-10-13 (M4, indirect page rotation):** Rotation queries and edits resolve indirect integer values on pages and their page-tree ancestors. Turning a page already at 270° by 90° now saves it at 0°, including when its rotation is inherited. Synthetic full/incremental save-and-reopen tests cover nested inheritance, sibling preservation, negative/large angles and invalid-value fallback. Estimates unchanged.
